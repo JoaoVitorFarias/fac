@@ -1,0 +1,20 @@
+# FAC: TRABALHO 01
+	.data
+	
+new_line:    .asciiz "\n"  # quebra de linha
+frase:       .asciiz "Ola Mundo"  
+	
+	.text
+main: 
+	la $a0, frase		# load frase
+	li $v0, 4		# Print String 
+	syscall			# print frase
+	
+	la   $a0, new_line   	# load new_line
+      	li   $v0, 4           	# Print String
+      	syscall               	# print quebra de linha
+
+	
+exit:      
+      li   $v0, 10          # chamada de saída
+      syscall               # saiu
