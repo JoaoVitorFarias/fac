@@ -10,15 +10,15 @@ main:
 	syscall
 	move $a2, $v0	# passando o segundo valor lido para a2
 
-#======================= IMPLEMENTÇÃO DAS OPERAÇÕES ARITMÉTICAS E LÓGICAS	
+#======================= IMPLEMENTÃ‡ÃƒO DAS OPERAÃ‡Ã•ES ARITMÃ‰TICAS E LÃ“GICAS	
 
-	add $t0, $a1, $a2	# soma estara em t1
-	sub $t1, $a1, $a2	# subtracao estara em t2
-	and $t2, $a1, $a2	# and estara em t3
-	or $t3, $a1, $a2	# or estara em t4
-	xor  $t4, $a1, $a2	# xor estara em t5
-	sll  $t5, $a1, 3	# o deslocamento a esquerda do a1 estara em t6
-	srl  $t6, $a2, 1	# o deslocamento a direita do a2 estara em t7
+	add $t0, $a1, $a2	# soma estara em t0
+	sub $t1, $a1, $a2	# subtracao estara em t1
+	and $t2, $a1, $a2	# and estara em t2
+	or $t3, $a1, $a2	# or estara em t3
+	xor  $t4, $a1, $a2	# xor estara em t4
+	sll  $t5, $a1, 3	# o deslocamento a esquerda do a1 estara em t5
+	srl  $t6, $a2, 1	# o deslocamento a direita do a2 estara em t6
 	
 #=======================	
 
