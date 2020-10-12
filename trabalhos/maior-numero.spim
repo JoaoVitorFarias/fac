@@ -1,0 +1,54 @@
+# FAC Trabalho 3
+	.text
+main: 
+	li $v0, 5		# lendo a quantidade de numeros
+	
+	syscall	
+	move $a1, $v0		# passando a quantidade de numeros para a1
+	
+	addi $a1, $a1, -1 	# decremento de 1 no a1
+	
+	li $v0, 5		# lendo o primeiro inteiro
+	
+	syscall
+	move $a2, $v0		# passando o  valor lido para a2
+	
+	add $t0,$t0, $zero	# iniciando o contador
+	
+loop:	li $v0, 5		#lendo inteiro
+	
+	syscall
+	move $a3, $v0		# passando o valor lido para a3
+	
+	add $t0,$t0, 1 		# incremento de 1 no contador
+	
+	slt $t1,$a2, $a3	# verificando se a2 é menor que a3
+	beq $t1, $zero, cont	# caso não for desviar para cont
+	
+	move $a2, $a3		# se a2 for menor que a3
+				# atribuir valor de a3 para a2
+	
+cont:	slt $t2, $t0, $a1	# verifica se contador é menor a1
+	bne $t2, $zero, loop	# se contador for menor que a1 desviar para loop
+	
+	
+	jal print		# impressão do maior numero
+
+exit:
+	li $v0, 10	#encerrarndo o sistema
+	syscall
+	
+	
+	.data
+new_line:	.asciiz "\n"
+
+	.text
+print:	move $a0, $a2 		# impressao do maior numero
+	li $v0, 1		# servico para impressao de um interger
+	syscall
+	
+	la $a0, new_line	# impressao de uma quebra de linha	
+	li $v0, 4		# servico para impressao de string
+	syscall 
+	
+	jr $ra

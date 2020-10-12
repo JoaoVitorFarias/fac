@@ -1,0 +1,62 @@
+# FAC Trabalho 3
+	.data
+questions: 	.space 100
+answers: 	.space 100
+new_line:	.asciiz "\n"
+
+	.text
+main: 
+	li $v0, 5		# lendo a quantidade de questoes
+	
+	syscall	
+	move $t3, $v0		# passando a quantidade de questoes para t3
+	
+	li $v0,8 		# lendo string
+	 	
+	la $a0, questions 	# carregando endereco
+        li $a1, 100		# alocando espaco
+        
+        syscall
+        add $t0, $zero, $a0 	# carregando string em t0
+        
+	li $v0,8		# lendo string
+	 
+	la $a0, answers 	# carregando endereco
+        li $a1, 100		# alocando espaco
+        
+        syscall
+        add $t1, $zero, $a0 	# carregando string em t1
+        
+  	add $t2, $t2, $zero	# inicializando o contador    
+
+	
+compare:lb  $a2, 0($t0)		# selecionando caractere
+	lb  $a3, 0($t1)		# selecionando caractere
+	
+        bne $a2,$a3,next	# verificando se caracteres sao iguais e desvia para next caso nao sejam
+        
+        addi $t2, $t2, 1	# incremento de 1 caso caracteres sejam iguais
+        
+next:	addi $t0,$t0,1		# aponta para proximo caractere
+	addi $t1,$t1,1		# aponta para proximo caractere
+	
+	addi $t3, $t3, -1	# decrementa de 1 no t3
+       	
+       	bne $t3,$zero, compare 	# compra se t3 é igual a zero, se não foi desvia para compare
+       	
+       	jal print		# imprime
+         
+exit:
+	li $v0, 10	#encerrarndo o sistema
+	syscall
+	
+	
+print: 	move $a0, $t2 		# impressao do contador
+	li $v0, 1		# servico para impressao de um interger
+	syscall
+	
+	la $a0, new_line	# impressao de uma quebra de linha	
+	li $v0, 4		# servico para impressao de string
+	syscall 
+
+	jr $ra
