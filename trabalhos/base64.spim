@@ -1,0 +1,125 @@
+# Somativa 5
+# João Vitor Lopes de Farias - 180020251	
+	
+	.data
+chars_64: 		.byte 'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','0','1','2','3','4','5','6','7','8','9','+','/'
+input: 			.space 64
+
+
+	.text
+main:
+	li $v0,8
+	li $a1, 64	
+	la $a0, input
+	li $t0, 10
+	move $t2,$a0 
+	syscall
+	
+base64:
+	lb $t6, 0($t2) 
+	
+	beq $t6, $t0, quebra
+	beq $t6, $t3, quebra
+	
+	andi $t1, $t6, 0xFF
+	sll $t1, $t1, 8
+	move $t6, $zero
+	lb $t5, 1($t2)
+	
+	beq $t5, $t0, clear
+	beq $t5, $t3, clear
+
+if:
+	andi $t4, $t5, 0xFF
+	add $t1, $t1, $t4
+	
+	sll $t1, $t1, 8
+	
+	move $t5, $zero
+	lb $t8, 2($t2)
+	
+	beq $t8, $t0, setup
+	beq $t8, $t3, setup
+	
+	j continue		
+		
+clear:
+	li $t5, 0
+	li $t6, 1
+	
+	j if
+
+setup:
+	add $t8, $zero, $zero
+	addi $t5, $t8, 1
+	
+continue:
+	andi $t4, $t8, 0xFF
+	add $t1, $t1, $t4
+	
+	add $a0, $t1, $zero
+	add $t8, $t1, $zero
+	
+	jal if2
+	
+	li $t9, 3
+	add $t2, $t2, $t9
+	
+	j base64
+
+if2:
+	add $t7, $ra, $zero
+	srl $t1, $t8, 18
+	andi $t1, $t1, 0x3F
+	
+	jal print_char
+	
+	srl $t1, $t8, 12
+	andi $t1, $t1, 0x3F
+	
+	jal print_char
+	
+	bnez $t6, calc3
+	andi $t1, $t8, 0xFC0
+	srl $t1, $t1, 6
+	
+	jal print_char
+	
+calc2:
+	bnez $t5, calc1
+	andi $t1, $t8, 0x3F
+	jal print_char
+	move $ra, $t7
+	jr $ra
+	
+calc1:
+	li $v0, 11
+	li, $a0,61
+	syscall
+	
+	move $ra, $t7
+	jr $ra	
+			
+calc3:
+	li $v0, 11
+	li $t9, 61
+	add $a0, $t9, $zero
+	syscall
+	j calc2
+	
+quebra:
+	li $v0, 11
+	li $a0, 10
+	syscall
+
+exit:
+	li $v0, 10
+	syscall
+
+print_char:
+	li $v0, 11
+	lb $a0, chars_64($t1)
+	syscall
+	
+	jr $ra
+		

@@ -1,0 +1,128 @@
+# FAC Somativa 4
+# João Vitor Lopes de Farias - 180020251
+
+	.data
+new_line:		.asciiz	"\n"
+invalido_msg:   	.asciiz "Entradas invalidas\n"
+nao_primo:		.asciiz "O modulo nao eh primo\n"
+inverso_modular:	.asciiz "inverso = "	
+
+	.text 
+main:
+	li $v0, 5			# lendo inteiro
+	syscall	
+	move $a1, $v0
+	
+	li $v0, 5			# lendo inteiro
+	syscall	
+	move $a2, $v0
+
+	ble $a1, 1, invalido		# verificando se alguma entrada é igual a 1
+	ble $a2, 1, invalido
+	
+	rem $t0, $a2, $a1		# realizando a divisão entre as entradas
+	
+	beqz  $t0, invalido		# verificando se o resto da divisão é igual de zero
+	
+	move $t4, $zero			
+	add $t1, $a1, $zero
+	
+	addi $t0, $zero, 1		
+	sll $t0, $t0, 30		
+	
+	jal raiz
+	
+	div $a1, $a2
+	mflo $t0
+	
+	j inverso
+	
+raiz:
+	slt $t2, $t1, $t0
+	beq $t2, $zero, loop1	
+	nop
+		
+	srl $t0, $t0, 2
+	j raiz
+		
+loop1:
+	beq $t0, $zero, primo	
+	nop
+		
+	add $t3, $t4, $t0		
+	slt $t2, $t1, $t3		
+	beq $t2, $zero, else	
+	nop
+		
+	srl $t4, $t4, 1			
+	j loop2
+		
+else:
+	sub $t1, $t1, $t3		
+	srl $t4, $t4, 1			
+	add $t4, $t4, $t0		
+		
+loop2:
+	srl $t0, $t0, 2			
+	j loop1	
+
+primo:
+        beq $a1, 2, return       	# verifica se o numero em a1 eh 2 
+        and $t0, $a1, 0x00000001
+        beqz $t0, naoprimo     		# desvio caso o numero for par
+        li $t0, 3       		
+
+loop:
+        div $a1, $t0    		
+        mfhi $t1        		
+
+        beqz $t1, naoprimo    	 	#verifica se t1 eh igual a zero
+        
+        bge $t0, $t4, return  
+        
+        addi $t0, $t0, 2       	 	#adiciona 2 ao numero $t0 e guarta o resultado em $t0
+        j loop        			
+
+return:
+        jr $ra   
+	
+inverso:
+	addi $t0, $t0,1			# incrmento em t0
+	
+	mult $a2, $t0    		# multiplicando a2 por t0
+	mflo $t1
+	
+	rem $t2, $t1, $a1		# dividindo t1 por a1 
+		
+	bne $t2, 1, inverso 		# se t2 for diferente de 1 ocorre o desvio	
+		
+print:	
+	la $a0, inverso_modular		# impressao da quebra de linha
+	li $v0, 4			# servico para imprimir uma string
+	syscall
+	
+	move $a0, $t0			# impressao do valor da soma
+	li $v0, 1			# servico para impressao de um interger
+	syscall
+	
+	la $a0, new_line		# impressao da quebra de linha
+	li $v0, 4			# servico para imprimir uma string
+	syscall
+	j exit
+	
+invalido:
+	la $a0, invalido_msg		# impressao da menssagem
+	li $v0, 4			# servico para imprimir uma string
+	syscall
+	
+	j exit
+	
+naoprimo:	
+	la $a0, nao_primo		# impressao da menssagem
+	li $v0, 4			# servico para imprimir uma string
+	syscall
+	
+exit:
+	li $v0, 10			# encerrarndo o sistema
+	syscall
+	

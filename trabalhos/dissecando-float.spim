@@ -1,0 +1,110 @@
+# FAC Formativa 8 
+	.data
+new_line:	.asciiz	"\n"
+negativo:	.asciiz	"-\n"
+positivo:	.asciiz	"+\n"
+symbol:		.asciiz	"0x"
+zeroFloat:	.float 0.0
+hexa:		.space	8
+
+
+	.text
+main: 
+	li $v0, 6			# lendo um numero float
+	syscall
+	mfc1 $t8, $f0			# movendo para o t8
+	
+	
+	lwc1 $f1, zeroFloat
+	add.s $f12, $f0, $f1		# movendo o numero float para f12
+    	li $v0, 2			# sistema para imprimir um float
+    	syscall
+    	
+    	jal print
+	
+	ori  $t0, $zero, 0x1
+    	sll  $t0, $t0, 31 
+    	and  $a0, $t0, $t8		# extraindo bit de sinal
+    	srl  $a0, $a0, 31
+    	add  $t1, $zero, $a0
+    	
+    	bne  $a0, $zero, sinal 		# verificando se é diferente de zero		
+					
+	la $a0, positivo		# imprimir sinal positivo
+	li $v0, 4			# sistema para imprimir uma string
+	syscall
+	
+	j expo				
+sinal:
+	la $a0, negativo		# imprimir sinal negativo
+	li $v0, 4			# sistema para imprimir uma string
+	syscall
+
+expo:	
+	ori  $t0, $zero, 0xFF			
+    	sll  $t0, $t0, 23
+    	and  $a0, $t0, $t8		# extraindo os bits do expoente
+    	srl  $a0, $a0, 23		
+    	addi $a0, $a0, -127		# fazendo subtracao de 127
+    	
+    	li $v0, 1			# sistema para imprimir um inteiro
+    	syscall
+	
+	jal print
+
+mantissa:
+	la $a0, symbol			# imprimir '0x'
+	li $v0, 4 			# sistema para imprimir uma string
+    	syscall
+    	
+    	ori  $t0, $zero, 0xFFFF
+    	sll  $t0, $t0, 7
+    	ori  $t0, $t0, 0x7F
+    	and  $a0, $t0, $t8		# extraindo os bits da mantissa
+    	jal hex
+   	
+    	jal print
+ 
+    	j exit
+
+hex:    
+	addi $sp, $sp, -24            	# iniciando um pilha 
+    	sw $a0, 0($sp)
+    	sw $s0, 4($sp)
+    	sw $s1, 8($sp)
+    	sw $s2, 12($sp)
+    	sw $s3, 16($sp)
+    	sw $s4, 20($sp)
+    	move $s2, $a0               	# movendo a0 para o a2
+    	li $s0, 8                   	# sistema para imprimir uma hexadecimal
+    	la $s3, hexa           		# carregando a string hexa
+
+loop:
+    	rol $s2, $s2, 4             	# inicia s2 com deslocamento de bits a esquerda
+    	and $s1, $s2, 0xf          
+    	ble $s1, 9, hexaprint        	# verifica se s1 é menor ou igual a 9
+    	add $s1, $s1, 7             	# incremento de 7 no s1
+
+hexaprint:
+    	add $s1, $s1, 48            	# obtendo código ascii
+    	sb $s1,($s3)                
+    	add $s3, $s3, 1             	# incremento de 1 em s3
+    	add $s0, $s0, -1            	# decremento de 1 no s0
+    	bnez $s0, loop           	# verifica se s0 é diferente de 0
+    
+    	la $a0, hexa			# imprimir o numero hexadecimal
+    	li $v0, 4			# sistema para imprimir uma string
+    	syscall
+
+    	jr $ra 
+    	 
+exit:
+	li $v0, 10			#encerrarndo o sistema
+	syscall
+	
+print:
+	la $a0, new_line		# carregando a quebra de linha para a0
+	li $v0, 4			# sistema para imprimir uma string
+	syscall
+	
+	jr $ra
